@@ -1,0 +1,55 @@
+#game_area{
+    display: grid;
+    width: 700px;
+    height: 600px;
+    border: 3px black solid;
+    margin: 0 auto;
+    position: relative;
+    background-color: antiquewhite;
+}
+#cat{
+    position: absolute;
+}
+
+.bricks{
+    border: solid black 1px;
+    position: absolute;
+
+}
+#container{
+    position: absolute;
+    width: 700px;
+    top: 50px
+}
+
+#head{
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    position: relative;
+    height: 50px;
+    background-color: white;
+    border-bottom: solid black 3px;
+    z-index: 1;
+}
+
+h2{
+    position: relative;
+    text-align: center;
+    font-family: "Ink Free", serif;
+}
+#sobics{
+    color: #ff00c9;
+}
+
+.wall{
+    background-image: url("../res/wall.jpg");
+    background-size: cover;
+}
+.dynamite{
+    background-image: url("../res/dynamite.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+
