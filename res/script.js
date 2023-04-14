@@ -9,6 +9,7 @@ let cat;
 let cat_width=100;
 let cat_height;
 let container;
+let curr_bricks;
 let cont_height;
 let brick_array=[];
 let colors=[
@@ -26,6 +27,7 @@ let brick_height;
 $(document).ready(function () {
     game_area=$("#game_area");
     container=$('#container');
+    curr_bricks=$('#bricks');
     ga_width=parseInt(game_area.css('width'));
     ga_height=parseInt(game_area.css('height'));
     brick_width=ga_width/column_number;
@@ -37,10 +39,11 @@ $(document).ready(function () {
     });
     init_ga();
 
-    $(window).on('mousemove', move_cat);
+    container.on('mousemove', move_cat);
+    //TODO
+    //hover, onclick, down to cat or just move
 
-
-    //setInterval(add_bricks, 2000);
+    //setInterval(add_bricks, 1000);
 
 })
 
@@ -57,7 +60,6 @@ function init_cat(){
 function init_ga(){
     for(let i=0;i<cont_height/brick_height;i++){
         let row=$('<div></div>');
-        //row.addClass('row');
         row.css({
             height: brick_height,
             width: ga_width,
@@ -82,13 +84,14 @@ function init_ga(){
 function add_bricks(rows=1){
     for(let i=0;i<rows;i++){
         let row=$('<div></div>');
-        //row.addClass('row');
         row.css({
             height: brick_height,
             width: ga_width,
-            top: i*brick_height
         })
-        container.prepend(row);
+        curr_bricks.css({
+            height: this.height+brick_height
+        })
+        curr_bricks.prepend(row);
         for(let j=0;j<column_number;j++){
             let brick=$('<div></div>');
             brick.addClass('bricks');
@@ -107,10 +110,9 @@ function add_bricks(rows=1){
             brick.css({
                 width: brick_width,
                 height: brick_height,
-                top: i*brick_height,
                 left: j*brick_width
             });
-            container.append(brick);
+            row.append(brick);
         }
     }
 }
@@ -124,3 +126,5 @@ function move_cat(ev){
         })
     }
 }
+
+

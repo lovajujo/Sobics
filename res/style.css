@@ -50,13 +50,17 @@ h2{
     background-position: center;
 }
 
-.row{
-    position: relative;
-}
-
 #container{
     position: relative;
     height: 550px;
+}
+
+#gameover{
+    position: absolute;
+    height: 600px;
+    width: 700px;
+    z-index: 3;
+    background-color: rgba(200,200,200,0.5);
 }
 
 
