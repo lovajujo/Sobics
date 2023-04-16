@@ -5,20 +5,23 @@
     border: 3px black solid;
     margin: 0 auto;
     position: relative;
-    background-color: antiquewhite;
+    background-image: url("../res/bg.jpeg");
+
 }
-#cat{
+#grogu{
     position: absolute;
 }
 
 .bricks{
     border: solid black 1px;
     position: absolute;
+    z-index: 3;
 }
 
 .tile{
-    border: solid white 1px;
+    border-right: solid #494949 1px;
     position: absolute;
+    z-index: 0;
 }
 
 #head{
@@ -26,7 +29,7 @@
     grid-template-columns: repeat(3, auto);
     position: relative;
     height: 50px;
-    background-color: white;
+    background-color: black;
     border-bottom: solid black 3px;
 }
 
@@ -34,9 +37,10 @@ h2{
     position: relative;
     text-align: center;
     font-family: "Ink Free", serif;
+    color: darkgray;
 }
 #sobics{
-    color: #ff00c9;
+    color: #549f03;
 }
 
 .wall{
