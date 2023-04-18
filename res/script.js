@@ -13,13 +13,7 @@ let container;
 let curr_bricks;
 let cont_height;
 let brick_array=[];
-let colors=[
-    "#de0085",
-    "#AAFF00",
-    "#0021fa",
-    "#00eaff",
-    "#9900cc"
-];
+let colors=['pink', 'green', 'dblue', 'lblue', 'purple'];
 let brick_width;
 let brick_height;
 let id_helper=0;
@@ -101,30 +95,33 @@ function init_grogu(){
 }
 
 function grid(){
+    let classs;
     for(let i=0;i<ga_width/brick_width;i++){
         for(let j=0; j<cont_height/brick_height;j++){
-            let tile=$('<div class="tile"></div>');
-            tile.css({
-                height: brick_height,
-                width:brick_width,
-                top: j*brick_height,
-                left: i*brick_width
-            })
-            let t_class='tile';
-            if(i<column_number && j<row_number){
-                change_color(tile);
+            if(j<row_number && i<column_number){
+                classs=change_color();
+            }else{
+                classs="tile";
             }
-
             brick_array.push({
                 y: j,
                 x: i,
-                c: t_class
+                cl: classs
             })
-            container.prepend(tile);
         }
-
     }
-    console.log(brick_array)
+    brick_array.forEach(function (element){
+        let tile=$('<div></div>');
+        tile.addClass(element.cl);
+        tile.css({
+            height: brick_height,
+            width: brick_width,
+            top: element.y*brick_height,
+            left:element.x*brick_width
+        })
+        container.prepend(tile);
+    })
+
 }
 
 function append_bricks(){
@@ -142,16 +139,13 @@ function append_bricks(){
 
 function change_color(tile){
     if(Math.random()<0.03){
-        tile.addClass('wall');
+        return "wall";
     }
-    else if(Math.random()>0.97){
-        tile.addClass('dynamite');
-    }else{
-        let color=Math.floor(Math.random()*5)
-        tile.css({
-            "background-color": colors[color]
-        });
+    if(Math.random()>0.97){
+        return "dynamite";
     }
+    let color=Math.floor(Math.random()*5);
+    return colors[color];
 }
 
 function add_bricks(rows=1){
@@ -215,6 +209,5 @@ function is_clickable(brick){
     if(holding){
         return false;
     }
-    let obj=brick_array.find(o=> o.id===brick.attr('id'));
-    return !brick_array.find(o => (o.y === obj.y - 1 && o.x === obj.x));
+    //TODO
 }

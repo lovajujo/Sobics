@@ -23,12 +23,29 @@
 
 }
 
-
-
 .tile{
-    border: solid #7e7e7e 1px;
+    border-right: solid #7e7e7e 1px;
     position: absolute;
 }
+ .pink, .green, .dblue, .lblue, .purple, .wall, .dynamite{
+    position: absolute;
+    border: solid white 1px;
+}
+ .pink{
+     background-color: #de0085;
+ }
+ .green{
+     background-color: #AAFF00;
+ }
+ .dblue{
+     background-color: #0021fa;
+ }
+ .lblue{
+     background-color: #00eaff;
+ }
+ .purple{
+     background-color: #9900cc;
+ }
 
 #head{
     display: grid;
