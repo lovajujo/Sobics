@@ -10,18 +10,24 @@
 }
 #grogu{
     position: absolute;
+    z-index: 2;
 }
 
 .bricks{
-    border: solid black 1px;
+    border: solid white 1px;
     position: absolute;
-    z-index: 3;
+    z-index: 1;
 }
 
+#bricks{
+
+}
+
+
+
 .tile{
-    border-right: solid #494949 1px;
+    border: solid #7e7e7e 1px;
     position: absolute;
-    z-index: 0;
 }
 
 #head{

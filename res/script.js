@@ -33,23 +33,28 @@ $(document).ready(function () {
     curr_bricks=$('#bricks');
     ga_width=parseInt(game_area.css('width'));
     ga_height=parseInt(game_area.css('height'));
-    brick_width=ga_width/column_number;
-    brick_height=ga_height/13;
     cont_height=parseInt(container.css('height'));
+    brick_width=ga_width/column_number;
+    brick_height=cont_height/13;
+
     grogu=$('<img src="../res/groguu.png" id="grogu">');
     grogu.on('load', function(){
         init_grogu();
     });
-    //init_ga();
-    add_bricks(row_number);
+
+    //add_bricks(row_number);
+    grid();
+
     $('#level').append(" "+level);
     $('#score').append(" "+score);
+
     container.on('mousemove', move_grogu);
 
-    $('.bricks:not(.wall)').hover(function (e){
+    $('.bricks:not(.wall)').hover(function (){
         if(is_clickable($(this))){
         $(this).css({
-            opacity: 0.5
+            opacity: 0.5,
+            cursor: "grab"
         });
     }},function () {
         $(this).css({
@@ -59,16 +64,19 @@ $(document).ready(function () {
     $('.bricks:not(.wall)').on('click',function (){
         if(is_clickable($(this))){
             pick_brick($(this));
+        }else{
+            place_brick($(this));
         }
     });
-    container.on('click', function () {
-
-    })
-    //setInterval(add_bricks, 1000);
+    //setInterval(append_bricks, 1000);
 
 })
 
 function place_brick(brick){
+    let obj=brick_array.find(o=>o.id===brick.id);
+    let y=obj.y;
+    //TODO
+
 
 }
 
@@ -92,32 +100,67 @@ function init_grogu(){
     game_area.append(grogu);
 }
 
-function init_ga(){
-    for(let i=0;i<cont_height/brick_height;i++){
-        let row=$('<div></div>');
-        row.css({
-            height: brick_height,
-            width: ga_width,
-            top: i*brick_height
-        })
-        container.append(row);
-        for(let j=0;j<column_number;j++){
+function grid(){
+    for(let i=0;i<ga_width/brick_width;i++){
+        for(let j=0; j<cont_height/brick_height;j++){
             let tile=$('<div class="tile"></div>');
             tile.css({
-                width: brick_width,
                 height: brick_height,
-                top: i*brick_height,
-                left: j*brick_width
-            });
-            container.append(tile);
+                width:brick_width,
+                top: j*brick_height,
+                left: i*brick_width
+            })
+            let t_class='tile';
+            if(i<column_number && j<row_number){
+                change_color(tile);
+            }
+
+            brick_array.push({
+                y: j,
+                x: i,
+                c: t_class
+            })
+            container.prepend(tile);
+        }
+
+    }
+    console.log(brick_array)
+}
+
+function append_bricks(){
+    for(let i=brick_array.length;i>=1;i--){
+        let tile=brick_array[i];
+        console.log(tile)
+        let prev=brick_array.find(o=>o.x===tile.x && o.y===tile.y-1);
+        tile.color=prev.color;
+        if(tile.y===0){
+            change_color(tile);
         }
     }
-    add_bricks(row_number);
+
+}
+
+function change_color(tile){
+    if(Math.random()<0.03){
+        tile.addClass('wall');
+    }
+    else if(Math.random()>0.97){
+        tile.addClass('dynamite');
+    }else{
+        let color=Math.floor(Math.random()*5)
+        tile.css({
+            "background-color": colors[color]
+        });
+    }
 }
 
 function add_bricks(rows=1){
     id_helper++;
     for(let i=0;i<rows;i++){
+        if(curr_bricks.css('height')>=cont_height){
+            //game_over();
+            return;
+        }
         let row=$('<div></div>');
         row.css({
             height: brick_height,
@@ -156,7 +199,6 @@ function add_bricks(rows=1){
             row.append(brick);
         }
     }
-    console.log(brick_array);
 }
 
 function move_grogu(ev){
