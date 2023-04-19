@@ -18,7 +18,11 @@ let brick_width;
 let brick_height;
 let id_helper=0;
 let holding=false;
-
+const instructions="<p id='instructions'>Help Grogu collect bricks!<br> Choose a brick or a dynamite (which will blow the whole column) from the bottom row, " +
+    "then click on the column, where you want to put it. Bricks will disappear, when there are at least 4 next to each other.</p>"
+let ss=$('<div id="startscreen"></div>');
+let start=$('<button id="start" onclick="game()">START</button>')
+let lb=$('<button id="lb" onclick="leader_board()">Leader Board</button>')
 
 
 $(document).ready(function () {
@@ -30,41 +34,7 @@ $(document).ready(function () {
     cont_height=parseInt(container.css('height'));
     brick_width=ga_width/column_number;
     brick_height=cont_height/13;
-
-    grogu=$('<img src="../res/groguu.png" id="grogu">');
-    grogu.on('load', function(){
-        init_grogu();
-    });
-
-
-    grid();
-
-    $('#level').append(" "+level);
-    $('#score').append(" "+score);
-
-    container.on('mousemove', move_grogu);
-
-    $('.pink, .green, .lblue, .dblue, .purple').hover(function (){
-        if(is_clickable($(this))){
-
-        $(this).css({
-            opacity: 0.5,
-            cursor: "grab"
-        });
-    }},function () {
-        $(this).css({
-            opacity: 1
-        })
-    })
-    $('.bricks:not(.wall)').on('click',function (){
-        if(is_clickable($(this))){
-            pick_brick($(this));
-        }else{
-            place_brick($(this));
-        }
-    });
-    //setInterval(new_line, 5000);
-
+    start_screen();
 })
 
 function place_brick(brick){
@@ -137,14 +107,17 @@ function new_line(){
     console.log(brick_array)
     brick_array.forEach(function (b){
         b.y+=1;
+        if(b.y===13 && b.cl!=='tile'){
+            game_over();
+        }
     })
-    console.log(brick_array)
+
     brick_array=brick_array.filter(o=>{
         return o.y<13;
     });
     id_helper++;
     for(let i=0; i<column_number;i++){
-        let uid=""+id_helper+""+i+""+j;
+        let uid=""+id_helper+""+i+""+0;
         brick_array.push({
             id: uid,
             x:i,
@@ -185,4 +158,69 @@ function is_clickable(brick){
     if(next.cl==='tile'){
         return true;
     }
+}
+function start_screen(){
+    start.css({
+        top: 350
+    });
+    lb.css({
+        top: 425
+    });
+    game_area.append(ss);
+    ss.append(start);
+    ss.append(lb);
+    ss.append(instructions);
+}
+
+function game(){
+    ss.remove();
+    grogu=$('<img src="../res/groguu.png" id="grogu">');
+    grogu.on('load', function(){
+        init_grogu();
+    });
+
+
+    grid();
+
+    $('#level').append(" "+level);
+    $('#score').append(" "+score);
+
+    container.on('mousemove', move_grogu);
+
+    $('.pink, .green, .lblue, .dblue, .purple').hover(function (){
+        if(is_clickable($(this))){
+
+            $(this).css({
+                opacity: 0.5,
+                cursor: "grab"
+            });
+        }},function () {
+        $(this).css({
+            opacity: 1
+        })
+    })
+    $('.bricks:not(.wall)').on('click',function (){
+        if(is_clickable($(this))){
+            pick_brick($(this));
+        }else{
+            place_brick($(this));
+        }
+    });
+    setInterval(new_line, 1000);
+
+}
+
+function leader_board(){
+    //TODO
+}
+
+function add_to_lb(name, score){
+    //TODO
+}
+
+function game_over(){
+    let go=$('<div id="gameover"></div>');
+    //TODO
+    console.log("game over :(")
+
 }
