@@ -20,11 +20,9 @@
 }
 
 #bricks{
-
 }
 
 .tile{
-    border-right: solid #7e7e7e 1px;
     position: absolute;
 }
  .pink, .green, .dblue, .lblue, .purple, .wall, .dynamite{

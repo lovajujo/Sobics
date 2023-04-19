@@ -36,7 +36,7 @@ $(document).ready(function () {
         init_grogu();
     });
 
-    //add_bricks(row_number);
+
     grid();
 
     $('#level').append(" "+level);
@@ -44,8 +44,9 @@ $(document).ready(function () {
 
     container.on('mousemove', move_grogu);
 
-    $('.bricks:not(.wall)').hover(function (){
+    $('.pink, .green, .lblue, .dblue, .purple').hover(function (){
         if(is_clickable($(this))){
+
         $(this).css({
             opacity: 0.5,
             cursor: "grab"
@@ -62,7 +63,7 @@ $(document).ready(function () {
             place_brick($(this));
         }
     });
-    //setInterval(append_bricks, 1000);
+    //setInterval(new_line, 5000);
 
 })
 
@@ -95,23 +96,26 @@ function init_grogu(){
 }
 
 function grid(){
-    let classs;
-    for(let i=0;i<ga_width/brick_width;i++){
-        for(let j=0; j<cont_height/brick_height;j++){
-            if(j<row_number && i<column_number){
-                classs=change_color();
-            }else{
-                classs="tile";
-            }
+    id_helper++;
+    for(let i=0;i<cont_height/brick_height;i++){
+        for(let j=0; j<ga_width/brick_width;j++){
+            let uid=""+id_helper+""+i+""+j;
             brick_array.push({
-                y: j,
-                x: i,
-                cl: classs
+                id:uid,
+                y: i,
+                x: j,
+                cl: 'tile'
             })
         }
     }
+    init_bricks();
+    draw_grid();
+
+}
+
+function draw_grid(){
     brick_array.forEach(function (element){
-        let tile=$('<div></div>');
+        let tile=$('<div id="'+element.id+'"></div>');
         tile.addClass(element.cl);
         tile.css({
             height: brick_height,
@@ -119,25 +123,39 @@ function grid(){
             top: element.y*brick_height,
             left:element.x*brick_width
         })
-        container.prepend(tile);
+        container.append(tile);
     })
-
 }
-
-function append_bricks(){
-    for(let i=brick_array.length;i>=1;i--){
-        let tile=brick_array[i];
-        console.log(tile)
-        let prev=brick_array.find(o=>o.x===tile.x && o.y===tile.y-1);
-        tile.color=prev.color;
-        if(tile.y===0){
-            change_color(tile);
+function init_bricks(){
+    brick_array.forEach(function (b){
+        if(b.y<row_number && b.x<column_number){
+            b.cl=change_color();
         }
-    }
-
+    })
 }
-
-function change_color(tile){
+function new_line(){
+    console.log(brick_array)
+    brick_array.forEach(function (b){
+        b.y+=1;
+    })
+    console.log(brick_array)
+    brick_array=brick_array.filter(o=>{
+        return o.y<13;
+    });
+    id_helper++;
+    for(let i=0; i<column_number;i++){
+        let uid=""+id_helper+""+i+""+j;
+        brick_array.push({
+            id: uid,
+            x:i,
+            y:0,
+            cl: change_color()
+        })
+    }
+    console.log(brick_array)
+    draw_grid()
+}
+function change_color(){
     if(Math.random()<0.03){
         return "wall";
     }
@@ -146,53 +164,6 @@ function change_color(tile){
     }
     let color=Math.floor(Math.random()*5);
     return colors[color];
-}
-
-function add_bricks(rows=1){
-    id_helper++;
-    for(let i=0;i<rows;i++){
-        if(curr_bricks.css('height')>=cont_height){
-            //game_over();
-            return;
-        }
-        let row=$('<div></div>');
-        row.css({
-            height: brick_height,
-            width: ga_width,
-        })
-        curr_bricks.css({
-            height: $(this).height+brick_height
-        })
-        curr_bricks.prepend(row);
-        for(let j=0;j<column_number;j++){
-            let uid=""+id_helper+""+i+""+j;
-            let brick=$('<div id="'+uid+'" class="bricks"></div>');
-            if(Math.random()<0.03){
-                brick.addClass('wall');
-            }
-            else if(Math.random()>0.97){
-                brick.addClass('dynamite');
-            }else{
-                let color=Math.floor(Math.random()*5)
-                brick.addClass(color);
-                brick.css({
-                    "background-color": colors[color]
-                });
-            }
-            brick.css({
-                width: brick_width,
-                height: brick_height,
-                left: j*brick_width
-            });
-            brick_array.push({
-                id: uid,
-                y:i,
-                x:j,
-                color: brick.css("background-color")
-            })
-            row.append(brick);
-        }
-    }
 }
 
 function move_grogu(ev){
@@ -209,5 +180,9 @@ function is_clickable(brick){
     if(holding){
         return false;
     }
-    //TODO
+    let obj=brick_array.find(o=>o.id===brick.attr('id'));
+    let next=brick_array.find(o=>o.y===obj.y+1 && o.x===obj.x);
+    if(next.cl==='tile'){
+        return true;
+    }
 }
