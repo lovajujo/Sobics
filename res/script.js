@@ -67,21 +67,35 @@ function game(){
     $('#level').append(" "+level);
     $('#score').append(" "+score);
     container.on('mousemove', move_grogu);
-    $('.pink, .green, .lblue, .dblue, .purple').hover(function (){
-        if(is_clickable($(this))){
+    let moveables=$('.pink, .green, .lblue, .dblue, .purple,.dynamite')
 
+    if(!holding){
+        moveables.hover(function (){
+            if(is_clickable($(this))){
+                $(this).css({
+                    opacity: 0.5
+                });
+            }
+        },function () {
             $(this).css({
-                opacity: 0.5,
-                cursor: "grab"
-            });
-        }},function () {
-        $(this).css({
-            opacity: 1
+                opacity: 1
+            })
         })
-    })
-    $('.bricks:not(.wall)').on('click',function (){
+    }else{
+        moveables.hover(function (){
+            if(is_first_empty_tile($(this))){
+                $(this).css({
+                    border: "solid 3px red"
+                })
+            }
+        }, function(){
+            $(this).css({
+                border: "solid white 1px"
+            })
+        })
+    }
+    moveables.on('click',function (){
         if(is_clickable($(this))){
-            console.log('ehh')
             pick_brick($(this));
         }else{
             place_brick($(this));
@@ -120,8 +134,9 @@ function game_over(){
 }
 
 function place_brick(brick){
-    let obj=brick_array.find(o=>o.id===brick.id);
+    let obj=brick_array.find(o=>o.id===brick.attr('id'));
     let y=obj.y;
+
     //TODO
 
 
@@ -241,11 +256,19 @@ function move_grogu(ev){
 
 function is_clickable(brick){
     if(holding){
-        return false;
+        return false
     }
     let obj=brick_array.find(o=>o.id===brick.attr('id'));
     let next=brick_array.find(o=>o.y===obj.y+1 && o.x===obj.x);
     if(next.cl==='tile'){
+        return true;
+    }
+}
+
+function is_first_empty_tile(brick){
+    let obj=brick_array.find(o=>o.id===brick.attr('id'));
+    let prev=brick_array.find(o=>o.y===obj.y-1 && o.x===obj.x);
+    if(obj.cl==='tile' && prev.cl!=='tile'){
         return true;
     }
 }
