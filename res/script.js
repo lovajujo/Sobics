@@ -19,6 +19,8 @@ let brick_height;
 let id_helper=0;
 let holding=false;
 let interval;
+let picked_brick_index;
+let moveables;
 const instructions="<p id='instructions'>Help Grogu collect bricks!<br> Choose a brick or a dynamite (which will blow the whole column) from the bottom row, " +
     "then click on the column, where you want to put it. Bricks will disappear, when there are at least 4 next to each other.</p>"
 let ss=$('<div class="startscreen"></div>');
@@ -67,40 +69,46 @@ function game(){
     $('#level').append(" "+level);
     $('#score').append(" "+score);
     container.on('mousemove', move_grogu);
-    let moveables=$('.pink, .green, .lblue, .dblue, .purple,.dynamite')
+    moveables=$('.pink, .green, .lblue, .dblue, .purple,.dynamite')
 
-    if(!holding){
-        moveables.hover(function (){
-            if(is_clickable($(this))){
-                $(this).css({
-                    opacity: 0.5
-                });
-            }
+
+    moveables.hover(function (){
+        if(is_bottom_brick($(this))){
+            $(this).css({
+                opacity: 0.5
+            });
+        }
         },function () {
             $(this).css({
                 opacity: 1
             })
-        })
-    }else{
-        moveables.hover(function (){
-            if(is_first_empty_tile($(this))){
-                $(this).css({
-                    border: "solid 3px red"
-                })
-            }
-        }, function(){
-            $(this).css({
-                border: "solid white 1px"
-            })
-        })
-    }
+    })
+
     moveables.on('click',function (){
-        if(is_clickable($(this))){
+        if(is_bottom_brick($(this))){
             pick_brick($(this));
-        }else{
+        }
+
+    });
+
+    $('.tile').hover(function () {
+
+        if(is_top_tile($(this))){
+            $(this).css({
+                border: "solid white 3px"
+            });
+        }
+    },function () {
+        $(this).css({
+            border: "none"
+        })
+    })
+
+    $('.tile').on('click', function (){
+        if (is_top_tile($(this))){
             place_brick($(this));
         }
-    });
+    })
     //interval=setInterval(new_line, 1000);
 
 }
@@ -134,21 +142,25 @@ function game_over(){
 }
 
 function place_brick(brick){
-    let obj=brick_array.find(o=>o.id===brick.attr('id'));
-    let y=obj.y;
-
-    //TODO
-
-
+    let to=brick_array.find(o=>o.id===brick.attr('id'));
+    let from=brick_array.find(o=>o.id===brick_array[picked_brick_index].id);
+    let to_index=brick_array.findIndex(o => {
+        return o.id === to.id;
+    });
+    let from_index=brick_array.findIndex(o => {
+        return o.id === from.id;
+    });
+    brick_array[to_index].cl=brick_array[from_index].cl;
+    brick_array[from_index].cl='tile';
+    draw_grid();
+    holding=false;
 }
 
 function pick_brick(brick){
     holding=true;
     brick.css({
-        width: brick_width/2,
-        height: brick_height/2,
-        left: brick_width/4+parseInt(brick.css('left')),
-        top: parseInt(brick.css('top'))+brick_height/4,
+        border: "solid white 5px",
+        width: brick_width*0.92
     })
 }
 
@@ -254,21 +266,27 @@ function move_grogu(ev){
     }
 }
 
-function is_clickable(brick){
+function is_bottom_brick(brick){
     if(holding){
-        return false
+            return false;
     }
     let obj=brick_array.find(o=>o.id===brick.attr('id'));
+    picked_brick_index=brick_array.findIndex(o => {
+        return o.id === obj.id;
+    });
     let next=brick_array.find(o=>o.y===obj.y+1 && o.x===obj.x);
     if(next.cl==='tile'){
         return true;
     }
 }
 
-function is_first_empty_tile(brick){
-    let obj=brick_array.find(o=>o.id===brick.attr('id'));
+function is_top_tile(tile){
+    if(!holding){
+        return false;
+    }
+    let obj=brick_array.find(o=>o.id===tile.attr('id'));
     let prev=brick_array.find(o=>o.y===obj.y-1 && o.x===obj.x);
-    if(obj.cl==='tile' && prev.cl!=='tile'){
+    if(prev.cl!=='tile' && prev!==brick_array[picked_brick_index]){
         return true;
     }
 }
