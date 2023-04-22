@@ -20,7 +20,7 @@ let id_helper=0;
 let holding=false;
 let interval;
 let picked_brick_index;
-let adjacents=[]
+let neighbours=[]
 
 
 $(document).ready(function () {
@@ -95,10 +95,54 @@ function init(){
 }
 
 function check_if_scored(brick){
-    let obj=brick_array.find(o=>o.id===brick.attr('id'));
-    adjacents.push(obj)
-    //TODO
+    console.log(brick)
+    neighbours.push(brick);
+    let curr_color_bricks=brick_array.filter(o=>{
+        return o.cl===brick.cl;
+    });
+    console.log(curr_color_bricks)
+    check_neigbours(curr_color_bricks, brick);
+    if(neighbours.length>=4){
+        score+=neighbours.length*10;
+        remove_bricks(neighbours);
+    }
 
+}
+
+function remove_bricks(array){
+    console.log("array: "+array)
+    brick_array.forEach(function (original_b){
+        array.forEach(function (to_remove){
+            console.log(original_b+", "+to_remove)
+            if(original_b.x===to_remove.x && original_b.y===to_remove){
+                original_b.cl='tile';
+                console.log('del')
+            }
+        })
+    })
+    draw_grid();
+    neighbours=[];
+    //TODO
+}
+
+function check_neigbours(array, current){
+    console.log('check neighbours')
+    array.forEach(function (e){
+        if(e.x-current.x===1 && e.y===current.y && !neighbours.includes(e)){
+            neighbours.push(e);
+            check_neigbours(array, e);
+        }else if(e.x-current.x===-1 && e.y===current.y && !neighbours.includes(e)){
+            neighbours.push(e);
+            check_neigbours(array, e);
+        }else if(e.y-current.y===1 && e.y===current.x &&!neighbours.includes(e)){
+            neighbours.push(e);
+            check_neigbours(array, e);
+        }else if(e.y-current.y===-1 && e.x===current.x && !neighbours.includes(e)){
+            neighbours.push(e);
+            check_neigbours(array, e);
+        }
+    })
+    console.log(neighbours)
 }
 
 function game_over(){
@@ -119,7 +163,7 @@ function place_brick(brick){
     brick_array[from_index].cl='tile';
     draw_grid();
     holding=false;
-
+    check_if_scored(to);
 }
 
 function pick_brick(brick){
