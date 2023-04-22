@@ -20,7 +20,6 @@ let id_helper=0;
 let holding=false;
 let interval;
 let picked_brick_index;
-let moveables;
 let adjacents=[]
 
 
@@ -49,51 +48,56 @@ function init(){
     $('#score').append(" "+score);
     container.on('mousemove', move_grogu);
 
-    moveables.hover(function (){
-        console.log('hover')
-        if(is_bottom_brick($(this))){
+    container.on({
+        mouseenter: function () {
+            if(is_bottom_brick($(this))){
+                $(this).css({
+                    opacity: 0.5
+                });
+            }
+        },
+        mouseleave: function () {
             $(this).css({
-                opacity: 0.5
-            });
+                opacity: 1
+            })
         }
-    },function () {
-        $(this).css({
-            opacity: 1
-        })
-    })
+    }, '.pink, .green, .lblue, .dblue, .purple,.dynamite');
 
-    moveables.click(function (){
+    container.on('click', '.pink, .green, .lblue, .dblue, .purple,.dynamite',function (){
         if(is_bottom_brick($(this))){
             pick_brick($(this));
         }
 
     });
 
-    $('.tile').hover(function () {
-
-        if(is_top_tile($(this))){
+    container.on({
+        mouseenter: function () {
+            if(is_top_tile($(this))){
+                $(this).css({
+                    border: "solid white 3px"
+                });
+            }
+        },
+        mouseleave: function () {
             $(this).css({
-                border: "solid white 3px"
-            });
+                border: "none"
+            })
         }
-    },function () {
-        $(this).css({
-            border: "none"
-        })
-    })
+    }, '.tile');
 
-    $('.tile').click( function (){
+    container.on('click','.tile', function (){
         if (is_top_tile($(this))){
             place_brick($(this));
         }
     })
 
-    interval=setInterval(new_line, timeout);
+    //interval=setInterval(new_line, timeout);
 }
 
 function check_if_scored(brick){
     let obj=brick_array.find(o=>o.id===brick.attr('id'));
     adjacents.push(obj)
+    //TODO
 
 }
 
@@ -174,7 +178,6 @@ function draw_grid(){
         })
         container.append(tile);
     })
-    moveables=$('.pink, .green, .lblue, .dblue, .purple,.dynamite')
 }
 
 function init_bricks(){
@@ -188,7 +191,7 @@ function init_bricks(){
 function new_line(){
     brick_array.forEach(function (b){
         b.y+=1;
-        if(b.y===12 && b.cl!=='tile'){
+        if(b.y===10 && b.cl!=='tile'){
             game_over();
         }
     })
