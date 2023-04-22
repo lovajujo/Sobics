@@ -1,6 +1,6 @@
 let level=1;
 let score=0;
-let timeout=8000;
+let timeout=10000;
 let row_number=5;
 let column_number=6;
 let game_area;
@@ -21,18 +21,15 @@ let holding=false;
 let interval;
 let picked_brick_index;
 let moveables;
-const instructions="<p id='instructions'>Help Grogu collect bricks!<br> Choose a brick or a dynamite (which will blow the whole column) from the bottom row, " +
-    "then click on the column, where you want to put it. Bricks will disappear, when there are at least 4 next to each other.</p>"
-let ss=$('<div class="startscreen"></div>');
-let start_button=$('<button id="start" onclick="game()">START</button>')
-let lb_button=$('<button id="lb" onclick="game_over()">Leader Board</button>')
-let go=$('<div class="startscreen"></div>')
-let go_text=$('<p id="gameover">Game Over</p>');
-let lb_add_button=$('<button id="lb_add" onclick="add_highscore()">Add to leader board</button>')
-
+let adjacents=[]
 
 
 $(document).ready(function () {
+    init();
+
+})
+
+function init(){
     game_area=$("#game_area");
     container=$('#container');
     curr_bricks=$('#bricks');
@@ -41,50 +38,31 @@ $(document).ready(function () {
     cont_height=parseInt(container.css('height'));
     brick_width=ga_width/column_number;
     brick_height=cont_height/13;
-    start_screen();
-})
-
-function start_screen(){
-    start_button.css({
-        top: 350
-    });
-    lb_button.css({
-        top: 425
-    });
-    game_area.append(ss);
-    ss.append(start_button);
-    ss.append(lb_button);
-    ss.append(instructions);
-}
-
-function game(){
-    ss.remove();
-    go.remove();
-    game_area.append(container);
-    grogu=$('<img src="../res/groguu.png" id="grogu">');
+    grogu=$('<img src="../img/groguu.png" id="grogu">');
     grogu.on('load', function(){
         init_grogu();
     });
+
     grid();
+
     $('#level').append(" "+level);
     $('#score').append(" "+score);
     container.on('mousemove', move_grogu);
-    moveables=$('.pink, .green, .lblue, .dblue, .purple,.dynamite')
-
 
     moveables.hover(function (){
+        console.log('hover')
         if(is_bottom_brick($(this))){
             $(this).css({
                 opacity: 0.5
             });
         }
-        },function () {
-            $(this).css({
-                opacity: 1
-            })
+    },function () {
+        $(this).css({
+            opacity: 1
+        })
     })
 
-    moveables.on('click',function (){
+    moveables.click(function (){
         if(is_bottom_brick($(this))){
             pick_brick($(this));
         }
@@ -104,41 +82,24 @@ function game(){
         })
     })
 
-    $('.tile').on('click', function (){
+    $('.tile').click( function (){
         if (is_top_tile($(this))){
             place_brick($(this));
         }
     })
-    //interval=setInterval(new_line, 1000);
 
+    interval=setInterval(new_line, timeout);
 }
 
-function leader_board(){
-    //TODO
-}
+function check_if_scored(brick){
+    let obj=brick_array.find(o=>o.id===brick.attr('id'));
+    adjacents.push(obj)
 
-function add_highscore(score){
-    //TODO
 }
 
 function game_over(){
-    ss.remove()
-    container.remove();
-    grogu.remove();
-    brick_array=[];
     clearInterval(interval);
-    game_area.append(go);
-    go.append(go_text);
-    go.append(start_button);
-    lb_add_button.css({
-        top: 425
-    })
-    go.append(lb_add_button);
-    $('#score').css({
-        top: 425,
-        left: 275
-    });
-    go.append($('#score'));
+    location.replace('../html/gameover.html');
 }
 
 function place_brick(brick){
@@ -154,6 +115,7 @@ function place_brick(brick){
     brick_array[from_index].cl='tile';
     draw_grid();
     holding=false;
+
 }
 
 function pick_brick(brick){
@@ -212,6 +174,7 @@ function draw_grid(){
         })
         container.append(tile);
     })
+    moveables=$('.pink, .green, .lblue, .dblue, .purple,.dynamite')
 }
 
 function init_bricks(){

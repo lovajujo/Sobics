@@ -2,21 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sobics_game</title>
+    <title>Sobics</title>
     <link rel="stylesheet" href="res/style.css">
-    <script src="res/jquery-3.4.1.min.js"></script>
-    <script src="res/script.js"></script>
+
 
 </head>
 <body>
 <div id="game_area">
-    <div id="head">
-        <h2 id="sobics"><b>Sobics</b></h2>
-        <h2 id="level">Level: </h2>
-        <h2 id="score">Score: </h2>
-    </div>
-    <div id="container">
-        <div id="bricks"></div>
+    <div class="startscreen">
+        <p id='instructions'>Help Grogu collect bricks!<br> Choose a brick or a dynamite (which will blow the whole column) from the bottom row, " +
+            "then click on the column, where you want to put it. Bricks will disappear, when there are at least 4 next to each other.</p>
+        <a href="res/html/game.html"><button id="start" style="top: 350px">START</button></a>
+        <a href="res/html/leaderboard.html"><button id="lb" style="top: 425px">Leader Board</button></a>
     </div>
 </div>
 </body>
