@@ -45,7 +45,7 @@ function init(){
     grid();
 
     $('#level').append(" "+level);
-    $('#score').append(" "+score);
+
     container.on('mousemove', move_grogu);
 
     container.on({
@@ -72,6 +72,7 @@ function init(){
 
     container.on({
         mouseenter: function () {
+            console.log('tile search')
             if(is_top_tile($(this))){
                 $(this).css({
                     border: "solid white 3px"
@@ -90,43 +91,55 @@ function init(){
             place_brick($(this));
         }
     })
-
+    setInterval(function (){
+        $('#score').text("Score: "+score);
+    },100)
     //interval=setInterval(new_line, timeout);
 }
 
 function check_if_scored(brick){
-    console.log(brick)
-    neighbours.push(brick);
-    let curr_color_bricks=brick_array.filter(o=>{
-        return o.cl===brick.cl;
-    });
-    console.log(curr_color_bricks)
-    check_neigbours(curr_color_bricks, brick);
-    if(neighbours.length>=4){
-        score+=neighbours.length*10;
-        remove_bricks(neighbours);
+    if(brick.cl==='dynamite'){
+        console.log('dynamite')
+        destroy_column(brick);
+    }else{
+        neighbours.push(brick);
+        let curr_color_bricks=brick_array.filter(o=>{
+            return o.cl===brick.cl;
+        });
+        check_neigbours(curr_color_bricks, brick);
+        if(neighbours.length>=4){
+            console.log(score)
+            remove_bricks(neighbours);
+        }
     }
+    neighbours=[];
+}
 
+function destroy_column(dyn){
+    let col=brick_array.filter(o=>{
+        return o.x===dyn.x;
+    })
+    console.log(col)
+    col.forEach(function (o){
+        col.cl='tile';
+    })
+    remove_bricks(col)
 }
 
 function remove_bricks(array){
-    console.log("array: "+array)
     brick_array.forEach(function (original_b){
         array.forEach(function (to_remove){
-            console.log(original_b+", "+to_remove)
-            if(original_b.x===to_remove.x && original_b.y===to_remove){
+            if(original_b.x===to_remove.x && original_b.y===to_remove.y){
                 original_b.cl='tile';
-                console.log('del')
             }
         })
     })
+    console.log(array)
+    score+=neighbours.length*10;
     draw_grid();
-    neighbours=[];
-    //TODO
 }
 
 function check_neigbours(array, current){
-    console.log('check neighbours')
     array.forEach(function (e){
         if(e.x-current.x===1 && e.y===current.y && !neighbours.includes(e)){
             neighbours.push(e);
@@ -142,7 +155,6 @@ function check_neigbours(array, current){
             check_neigbours(array, e);
         }
     })
-    console.log(neighbours)
 }
 
 function game_over(){
@@ -295,9 +307,15 @@ function is_top_tile(tile){
         return false;
     }
     let obj=brick_array.find(o=>o.id===tile.attr('id'));
-    let prev=brick_array.find(o=>o.y===obj.y-1 && o.x===obj.x);
-    if(prev.cl!=='tile' && prev!==brick_array[picked_brick_index]){
+    if(obj.y>0){
+        let prev=brick_array.find(o=>o.y===obj.y-1 && o.x===obj.x);
+        if(prev.cl!=='tile' && prev!==brick_array[picked_brick_index]){
+            return true;
+        }
+    }else if(obj.y===0){
         return true;
     }
+
+
 }
 
