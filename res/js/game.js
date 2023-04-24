@@ -45,7 +45,7 @@ function init(){
     grid();
 
     $('#level').append(" "+level);
-
+    $('#score').append(score);
     container.on('mousemove', move_grogu);
 
     container.on({
@@ -91,9 +91,7 @@ function init(){
             place_brick($(this));
         }
     })
-    setInterval(function (){
-        $('#score').text("Score: "+score);
-    },100)
+
     //interval=setInterval(new_line, timeout);
 }
 
@@ -136,7 +134,9 @@ function remove_bricks(array){
     })
     console.log(array)
     score+=neighbours.length*10;
+    $('#score').text("Score: "+score);
     draw_grid();
+    fill_empty_spaces()
 }
 
 function check_neigbours(array, current){
@@ -155,6 +155,9 @@ function check_neigbours(array, current){
             check_neigbours(array, e);
         }
     })
+}
+function fill_empty_spaces(){
+    //TODO
 }
 
 function game_over(){
@@ -237,9 +240,14 @@ function draw_grid(){
 }
 
 function init_bricks(){
+    let prev;
     brick_array.forEach(function (b){
         if(b.y<row_number && b.x<column_number){
-            b.cl=change_color();
+            b.cl=prev;
+            while(b.cl===prev){
+                b.cl=change_color();
+            }
+            prev=b.cl;
         }
     })
 }
