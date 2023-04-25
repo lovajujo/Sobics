@@ -74,7 +74,7 @@ input{
 
 #head{
     display: grid;
-    grid-template-columns: repeat(3, auto);
+    grid-template-columns: repeat(4, auto);
     position: relative;
     height: 50px;
     background-color: black;
@@ -91,6 +91,11 @@ h2{
     color: #549f03;
 }
 
+.clock{
+    background-image: url("img/clock.png");
+
+}
+
 .wall{
     background-image: url("img/wall.jpg");
     background-size: cover;
@@ -101,6 +106,8 @@ h2{
     background-repeat: no-repeat;
     background-position: center;
 }
+
+
 
 #container{
     position: absolute;

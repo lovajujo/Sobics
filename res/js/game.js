@@ -1,6 +1,6 @@
 let level=1;
 let score=0;
-let timeout=10000;
+let time_left=11-level;
 let row_number=5;
 let column_number=6;
 let game_area;
@@ -21,13 +21,14 @@ let interval;
 let picked_brick_index;
 let neighbours=[]
 let ss=$('<div class="startscreen"></div>');
-let instruction=$('<p id="instructions"><b>Help Grogu collect bricks!</b><br> Choose a brick or a dynamite (which will blow the whole column)\n' +
+let instruction=$('<p id="instructions"><b>Help Grogu collect bricks!</b><br> Choose a brick, a dynamite or a clock \n' +
     '        from the bottom row, then click on the column,' +
     '        where you want to put it. Bricks will disappear, when there are at least 4 next to\n' +
     '        each other.</p>')
 let start_button= $('<button id="start" style="top: 425px" onclick=play()>START</button>');
 let lb_button=$('<button id="lb" style="top: 350px" onclick=show_leaderboard()>Leader Board</button>')
-let head=$('<div id="head"><h2 id="sobics"><b>Sobics</b></h2><h2 id="level">Level: </h2><h2 id="score">Score: </h2></div>')
+let head=$('<div id="head"><h2 id="sobics"><b>Sobics</b></h2><h2 id="level">Level: </h2>' +
+    '<h2 id="score">Score: </h2><h2 id="time">Time: </h2></div>')
 let leaderboard=$('<table id="leaderboard">\n' +
     '    <tr>\n' +
     '      <th>Rank</th>\n' +
@@ -99,7 +100,8 @@ function play(){
     });
     grid();
     $('#score').text("Score: "+score);
-    $('#level').text("Score: "+level);
+    $('#level').text("Level: "+level);
+    $('#time').text("Time: "+time_left);
     container.on('mousemove', move_grogu);
 
     container.on({
@@ -115,9 +117,9 @@ function play(){
                 opacity: 1
             })
         }
-    }, '.pink, .green, .lblue, .dblue, .purple,.dynamite');
+    }, '.pink, .green, .lblue, .dblue, .purple,.dynamite, .clock');
 
-    container.on('click', '.pink, .green, .lblue, .dblue, .purple,.dynamite',function (){
+    container.on('click', '.pink, .green, .lblue, .dblue, .purple,.dynamite, .clock',function (){
         if(is_bottom_brick($(this))){
             pick_brick($(this));
         }
@@ -145,7 +147,24 @@ function play(){
         }
     })
 
-    interval=setInterval(new_line, 5000);
+    interval=setInterval(function (){
+        time_left--;
+        $('#time').text("Time: "+time_left);
+        if(time_left<4){
+            $('#time').css({
+                color: 'red'
+            })
+        }else{
+            $('#time').css({
+                color: 'darkgrey'
+            })
+        }
+        if(time_left===0){
+            new_line();
+            time_left=11-level;
+        }
+    }, 1000);
+
 }
 
 function check_if_scored(brick){
@@ -184,7 +203,6 @@ function remove_bricks(array){
     score+=neighbours.length*10;
     $('#score').text("Score: "+score);
     draw_grid();
-    fill_empty_spaces()
 }
 
 function check_neigbours(array, current){
@@ -203,9 +221,6 @@ function check_neigbours(array, current){
             check_neigbours(array, e);
         }
     })
-}
-function fill_empty_spaces(){
-    //TODO
 }
 
 function game_over(){
@@ -332,11 +347,14 @@ function new_line(){
 }
 
 function change_color(){
-    if(Math.random()<0.03){
+    if(Math.random()>0.97){
         return "wall";
     }
     if(Math.random()>0.97){
         return "dynamite";
+    }
+    if(Math.random()>0.90){
+        return "clock";
     }
     let color=Math.floor(Math.random()*5);
     return colors[color];
