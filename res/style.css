@@ -127,4 +127,16 @@ h2{
     border: solid black 2px;
 }
 
+td{
+    text-align: center;
+}
+
+tr:nth-child(even){
+    background-color: white;
+}
+
+th{
+    background-color: #549f03;
+}
+
 

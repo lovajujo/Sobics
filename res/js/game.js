@@ -27,15 +27,17 @@ let instruction=$('<p id="instructions"><b>Help Grogu collect bricks!</b><br> Ch
     '        each other.</p>')
 let start_button= $('<button id="start" style="top: 425px" onclick=play()>START</button>');
 let lb_button=$('<button id="lb" style="top: 350px" onclick=show_leaderboard()>Leader Board</button>')
-let head=$('<div id="head"><h2 id="sobics"><b>Sobics</b></h2><h2 id="score">Score: </h2></div>')
+let head=$('<div id="head"><h2 id="sobics"><b>Sobics</b></h2><h2 id="level">Level: </h2><h2 id="score">Score: </h2></div>')
 let leaderboard=$('<table id="leaderboard">\n' +
     '    <tr>\n' +
-    '      <th>Player</th>\n' +
+    '      <th>Rank</th>\n' +
+    '      <th>Name</th>\n' +
     '      <th>Score</th>\n' +
     '    </tr>\n' +
     '  </table>')
 let add_score_button=$('<button id="add_to_lb" style="top: 350px" onclick=add_to_leaderboard()>Add to leader board</button>')
-let name_input=$('<input type="text" required maxlength="10" placeholder="type your name" id="name_in">')
+let name_input=$('<input type="text" required maxlength="10" placeholder="type your name" id="name_in">');
+
 
 $(document).ready(function () {
     game_area=$("#game_area");
@@ -45,22 +47,47 @@ $(document).ready(function () {
 
 function startscreen(){
     game_area.append(ss);
+    ss.empty();
     ss.append(instruction);
     ss.append(start_button);
     ss.append(lb_button);
 }
 
 function show_leaderboard(){
-    //TODO
-    game_area.append(ss);
+    ss.empty();
+    ss.append(start_button)
     ss.append(leaderboard);
+    let scores=get_scores();
+    scores.sort((a, b) => {
+        return b.score-a.score;
+    });
+    scores.slice(0,9);
+    for(let i=0;i<scores.length;i++){
+        let rank=i+1;
+        leaderboard.append('<tr class="table_lines"><td>'+rank+'.</td><td>'+scores[i].name+'</td><td>'+scores[i].score+'</td></tr>');
+    }
+}
+
+function get_scores(){
+    let keys=Object.keys(localStorage);
+    let scores=[];
+    for(let i=0;i<keys.length;i++){
+        let next=localStorage.getItem(keys[i]).split(";");
+        scores.push({
+            date: keys[i],
+            name: next[0],
+            score: next[1]
+        });
+    }
+    return scores;
 }
 
 function play(){
-    instruction.remove();
-    lb_button.remove();
+    ss.empty();
     ss.remove();
     game_area.append(head);
+    game_area.append(container)
+    score=0;
     ga_width=parseInt(game_area.css('width'));
     ga_height=parseInt(game_area.css('height'));
     cont_height=parseInt(container.css('height'));
@@ -71,8 +98,8 @@ function play(){
         init_grogu();
     });
     grid();
-    $('#level').append(" "+level);
-    $('#score').append(score);
+    $('#score').text("Score: "+score);
+    $('#level').text("Score: "+level);
     container.on('mousemove', move_grogu);
 
     container.on({
@@ -99,7 +126,6 @@ function play(){
 
     container.on({
         mouseenter: function () {
-            console.log('tile search')
             if(is_top_tile($(this))){
                 $(this).css({
                     border: "solid white 3px"
@@ -119,12 +145,11 @@ function play(){
         }
     })
 
-    interval=setInterval(new_line, 500);
+    interval=setInterval(new_line, 5000);
 }
 
 function check_if_scored(brick){
     if(brick.cl==='dynamite'){
-        console.log('dynamite')
         destroy_column(brick);
     }else{
         neighbours.push(brick);
@@ -133,7 +158,6 @@ function check_if_scored(brick){
         });
         check_neigbours(curr_color_bricks, brick);
         if(neighbours.length>=4){
-            console.log(score)
             remove_bricks(neighbours);
         }
     }
@@ -142,12 +166,10 @@ function check_if_scored(brick){
 
 function destroy_column(dyn){
     let col=brick_array.filter(o=>{
-        return o.x===dyn.x;
-    })
-    console.log(col)
-    col.forEach(function (o){
-        col.cl='tile';
-    })
+        return (o.x===dyn.x && o.cl!=='tile');
+    });
+    score+=col.length*10;
+    col.cl="tile";
     remove_bricks(col)
 }
 
@@ -159,7 +181,6 @@ function remove_bricks(array){
             }
         })
     })
-    console.log(array)
     score+=neighbours.length*10;
     $('#score').text("Score: "+score);
     draw_grid();
@@ -190,18 +211,21 @@ function fill_empty_spaces(){
 function game_over(){
     clearInterval(interval);
     brick_array=[];
-    container.remove();
-    grogu.remove();
+    game_area.empty();
     game_area.append(ss);
     ss.append(add_score_button);
-    ss.append(name_input)
+    ss.append(name_input);
+    ss.append(start_button);
 
 }
 
 function add_to_leaderboard(){
     let name=$('#name_in').val();
-    console.log(name);
-
+    let value=""+name+";"+score;
+    let key=Date.now().toString();
+    localStorage.setItem(key, value);
+    location.reload()
+    alert('Score added!')
 }
 
 function place_brick(brick){
@@ -256,15 +280,8 @@ function grid(){
 
 }
 
-function clear_bg(){
-    let children=container.children()
-    for(let i=0;i<children.length;i++){
-        children[i].remove();
-    }
-}
-
 function draw_grid(){
-    clear_bg()
+    container.empty();
     brick_array.forEach(function (element){
         let tile=$('<div id="'+element.id+'"></div>');
         tile.addClass(element.cl);
@@ -276,7 +293,6 @@ function draw_grid(){
         })
         container.append(tile);
     })
-    console.log(brick_array)
 }
 
 function init_bricks(){
