@@ -5,7 +5,7 @@
     border: 3px black solid;
     margin: 0 auto;
     position: relative;
-    background-image: url("img/bg.jpeg");
+    background-image: url("/res/img/bg.jpeg");
 }
 
 .startscreen{
@@ -103,7 +103,8 @@ h2{
 }
 
 #container{
-    position: relative;
+    position: absolute;
+    top: 50px;
     height: 550px;
 }
 
@@ -115,6 +116,15 @@ h2{
     font-size: 70px;
     font-family: "Ink Free", serif;
     color: #549f03;
+}
+
+#leaderboard{
+    position: absolute;
+    width: 400px;
+    height: auto;
+    top: 100px;
+    left: 125px;
+    border: solid black 2px;
 }
 
 

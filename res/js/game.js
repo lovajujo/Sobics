@@ -4,13 +4,12 @@ let timeout=10000;
 let row_number=5;
 let column_number=6;
 let game_area;
+let container;
 let ga_width;
 let ga_height;
 let grogu;
 let grogu_width=100;
 let grogu_height;
-let container;
-let curr_bricks;
 let cont_height;
 let brick_array=[];
 let colors=['pink', 'green', 'dblue', 'lblue', 'purple'];
@@ -21,29 +20,57 @@ let holding=false;
 let interval;
 let picked_brick_index;
 let neighbours=[]
-
+let ss=$('<div class="startscreen"></div>');
+let instruction=$('<p id="instructions"><b>Help Grogu collect bricks!</b><br> Choose a brick or a dynamite (which will blow the whole column)\n' +
+    '        from the bottom row, then click on the column,' +
+    '        where you want to put it. Bricks will disappear, when there are at least 4 next to\n' +
+    '        each other.</p>')
+let start_button= $('<button id="start" style="top: 425px" onclick=play()>START</button>');
+let lb_button=$('<button id="lb" style="top: 350px" onclick=show_leaderboard()>Leader Board</button>')
+let head=$('<div id="head"><h2 id="sobics"><b>Sobics</b></h2><h2 id="score">Score: </h2></div>')
+let leaderboard=$('<table id="leaderboard">\n' +
+    '    <tr>\n' +
+    '      <th>Player</th>\n' +
+    '      <th>Score</th>\n' +
+    '    </tr>\n' +
+    '  </table>')
+let add_score_button=$('<button id="add_to_lb" style="top: 350px" onclick=add_to_leaderboard()>Add to leader board</button>')
+let name_input=$('<input type="text" required maxlength="10" placeholder="type your name" id="name_in">')
 
 $(document).ready(function () {
-    init();
-
-})
-
-function init(){
     game_area=$("#game_area");
     container=$('#container');
-    curr_bricks=$('#bricks');
+    startscreen()
+})
+
+function startscreen(){
+    game_area.append(ss);
+    ss.append(instruction);
+    ss.append(start_button);
+    ss.append(lb_button);
+}
+
+function show_leaderboard(){
+    //TODO
+    game_area.append(ss);
+    ss.append(leaderboard);
+}
+
+function play(){
+    instruction.remove();
+    lb_button.remove();
+    ss.remove();
+    game_area.append(head);
     ga_width=parseInt(game_area.css('width'));
     ga_height=parseInt(game_area.css('height'));
     cont_height=parseInt(container.css('height'));
     brick_width=ga_width/column_number;
     brick_height=cont_height/13;
-    grogu=$('<img src="../img/groguu.png" id="grogu">');
+    grogu=$('<img src="/res/img/groguu.png" id="grogu">');
     grogu.on('load', function(){
         init_grogu();
     });
-
     grid();
-
     $('#level').append(" "+level);
     $('#score').append(score);
     container.on('mousemove', move_grogu);
@@ -92,7 +119,7 @@ function init(){
         }
     })
 
-    //interval=setInterval(new_line, timeout);
+    interval=setInterval(new_line, 500);
 }
 
 function check_if_scored(brick){
@@ -162,7 +189,19 @@ function fill_empty_spaces(){
 
 function game_over(){
     clearInterval(interval);
-    location.replace('../html/gameover.html');
+    brick_array=[];
+    container.remove();
+    grogu.remove();
+    game_area.append(ss);
+    ss.append(add_score_button);
+    ss.append(name_input)
+
+}
+
+function add_to_leaderboard(){
+    let name=$('#name_in').val();
+    console.log(name);
+
 }
 
 function place_brick(brick){
@@ -237,6 +276,7 @@ function draw_grid(){
         })
         container.append(tile);
     })
+    console.log(brick_array)
 }
 
 function init_bricks(){
