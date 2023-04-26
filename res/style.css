@@ -52,7 +52,7 @@ input{
 .tile{
     position: absolute;
 }
- .pink, .green, .dblue, .lblue, .purple, .wall, .dynamite{
+ .pink, .green, .dblue, .lblue, .purple, .wall, .dynamite, .clock{
     position: absolute;
     border: solid white 1px;
 }
@@ -93,7 +93,9 @@ h2{
 
 .clock{
     background-image: url("img/clock.png");
-
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .wall{

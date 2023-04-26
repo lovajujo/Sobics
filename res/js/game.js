@@ -89,6 +89,7 @@ function play(){
     game_area.append(head);
     game_area.append(container)
     score=0;
+    time_left=11-level;
     ga_width=parseInt(game_area.css('width'));
     ga_height=parseInt(game_area.css('height'));
     cont_height=parseInt(container.css('height'));
@@ -163,13 +164,17 @@ function play(){
             new_line();
             time_left=11-level;
         }
-    }, 1000);
+    }, 100);
 
 }
 
 function check_if_scored(brick){
     if(brick.cl==='dynamite'){
         destroy_column(brick);
+    }else if(brick.cl==='clock'){
+        reset_timer();
+        brick.cl='tile';
+        draw_grid();
     }else{
         neighbours.push(brick);
         let curr_color_bricks=brick_array.filter(o=>{
@@ -181,6 +186,10 @@ function check_if_scored(brick){
         }
     }
     neighbours=[];
+}
+
+function reset_timer(){
+    time_left=11-level;
 }
 
 function destroy_column(dyn){
@@ -308,6 +317,8 @@ function draw_grid(){
         })
         container.append(tile);
     })
+
+    console.log(brick_array)
 }
 
 function init_bricks(){
@@ -323,7 +334,10 @@ function init_bricks(){
     })
 }
 
+function check_prev_color(brick){}
+
 function new_line(){
+    let prev_color;
     brick_array.forEach(function (b){
         b.y+=1;
         if(b.y===10 && b.cl!=='tile'){
@@ -335,6 +349,10 @@ function new_line(){
     });
     id_helper++;
     for(let i=0; i<column_number;i++){
+        brick_array[i].cl=prev_color;
+        while(brick_array[i].cl===prev_color){
+            brick_array[i].cl=change_color();
+        }
         let uid=""+id_helper+""+i+""+0;
         brick_array.push({
             id: uid,
@@ -353,7 +371,7 @@ function change_color(){
     if(Math.random()>0.97){
         return "dynamite";
     }
-    if(Math.random()>0.90){
+    if(Math.random()>0.97){
         return "clock";
     }
     let color=Math.floor(Math.random()*5);
