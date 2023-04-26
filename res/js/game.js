@@ -53,20 +53,24 @@ function startscreen(){
     ss.append(start_button);
     ss.append(lb_button);
 }
-
 function show_leaderboard(){
     ss.empty();
     ss.append(start_button)
     ss.append(leaderboard);
     let scores=get_scores();
-    scores.sort((a, b) => {
-        return b.score-a.score;
-    });
-    scores.slice(0,9);
-    for(let i=0;i<scores.length;i++){
-        let rank=i+1;
-        leaderboard.append('<tr class="table_lines"><td>'+rank+'.</td><td>'+scores[i].name+'</td><td>'+scores[i].score+'</td></tr>');
+    if(scores.length===0){
+        ss.append('<h2 id="empty">No data available. Play and save your score first!</h2>')
+    }else{
+        scores.sort((a, b) => {
+            return b.score-a.score;
+        });
+        scores.slice(0,9);
+        for(let i=0;i<scores.length;i++){
+            let rank=i+1;
+            leaderboard.append('<tr class="table_lines"><td>'+rank+'.</td><td>'+scores[i].name+'</td><td>'+scores[i].score+'</td></tr>');
+        }
     }
+
 }
 
 function get_scores(){
@@ -164,7 +168,14 @@ function play(){
             new_line();
             time_left=11-level;
         }
-    }, 100);
+    }, 1000);
+
+}
+
+function plus_time_animation(){
+    let plus_t_text=$('<h2 class="animation">+Plus time!</h2>');
+    game_area.append(plus_t_text);
+    plus_t_text.slideUp(2000);
 
 }
 
@@ -172,9 +183,11 @@ function check_if_scored(brick){
     if(brick.cl==='dynamite'){
         destroy_column(brick);
     }else if(brick.cl==='clock'){
-        reset_timer();
+        time_left=11-level;
+        plus_time_animation()
         brick.cl='tile';
         draw_grid();
+
     }else{
         neighbours.push(brick);
         let curr_color_bricks=brick_array.filter(o=>{
@@ -184,12 +197,9 @@ function check_if_scored(brick){
         if(neighbours.length>=4){
             remove_bricks(neighbours);
         }
-    }
-    neighbours=[];
-}
 
-function reset_timer(){
-    time_left=11-level;
+        neighbours=[];
+    }
 }
 
 function destroy_column(dyn){
@@ -210,6 +220,10 @@ function remove_bricks(array){
         })
     })
     score+=neighbours.length*10;
+    let score_animation=$('<h2 class="animation"></h2>');
+    score_animation.text("+"+score+" pts!");
+    game_area.append(score_animation)
+    score_animation.slideUp(2000);
     $('#score').text("Score: "+score);
     draw_grid();
 }
@@ -222,7 +236,7 @@ function check_neigbours(array, current){
         }else if(e.x-current.x===-1 && e.y===current.y && !neighbours.includes(e)){
             neighbours.push(e);
             check_neigbours(array, e);
-        }else if(e.y-current.y===1 && e.y===current.x &&!neighbours.includes(e)){
+        }else if(e.y-current.y===1 && e.x===current.x &&!neighbours.includes(e)){
             neighbours.push(e);
             check_neigbours(array, e);
         }else if(e.y-current.y===-1 && e.x===current.x && !neighbours.includes(e)){
@@ -230,6 +244,7 @@ function check_neigbours(array, current){
             check_neigbours(array, e);
         }
     })
+    console.log(neighbours)
 }
 
 function game_over(){
@@ -301,7 +316,6 @@ function grid(){
     }
     init_bricks();
     draw_grid();
-
 }
 
 function draw_grid(){
@@ -317,12 +331,10 @@ function draw_grid(){
         })
         container.append(tile);
     })
-
-    console.log(brick_array)
 }
 
 function init_bricks(){
-    let prev;
+    let prev='';
     brick_array.forEach(function (b){
         if(b.y<row_number && b.x<column_number){
             b.cl=prev;
@@ -334,10 +346,9 @@ function init_bricks(){
     })
 }
 
-function check_prev_color(brick){}
-
 function new_line(){
     let prev_color;
+    let color='';
     brick_array.forEach(function (b){
         b.y+=1;
         if(b.y===10 && b.cl!=='tile'){
@@ -349,17 +360,19 @@ function new_line(){
     });
     id_helper++;
     for(let i=0; i<column_number;i++){
-        brick_array[i].cl=prev_color;
-        while(brick_array[i].cl===prev_color){
-            brick_array[i].cl=change_color();
+        prev_color=color;
+        while(prev_color===color){
+            color=change_color();
         }
+        prev_color=color;
         let uid=""+id_helper+""+i+""+0;
         brick_array.push({
             id: uid,
             x:i,
             y:0,
-            cl: change_color()
+            cl: color
         })
+
     }
     draw_grid()
 }

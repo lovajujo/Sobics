@@ -147,5 +147,13 @@ tr:nth-child(even){
 th{
     background-color: #549f03;
 }
+.animation{
+    font-size: 50px;
+}
+
+#empty{
+    color: black;
+    top: 200px
+}
 
 
