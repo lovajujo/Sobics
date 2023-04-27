@@ -36,9 +36,18 @@ let leaderboard=$('<table id="leaderboard">\n' +
     '      <th>Score</th>\n' +
     '    </tr>\n' +
     '  </table>')
+let go_text=$('<p id="gameover">Game over</p>')
 let add_score_button=$('<button id="add_to_lb" style="top: 350px" onclick=add_to_leaderboard()>Add to leader board</button>')
 let name_input=$('<input type="text" required maxlength="10" placeholder="type your name" id="name_in">');
-
+let go=false;
+let wall_pct=0.99;
+let dyn_time_pct=0.96;
+let audio_go=new Audio("../res/audio/7sec.mp3");
+let audio_levelup=new Audio("../res/audio/bonus.mp3");
+let audio_put_brick=new Audio("../res/audio/put.mp3");
+let audio_remove_brick=new Audio("../res/audio/remove.mp3");
+let audio_play=new Audio("../res/audio/theme_long.mp3");
+let audio_start=new Audio("../res/audio/starts.mp3");
 
 $(document).ready(function () {
     game_area=$("#game_area");
@@ -53,6 +62,9 @@ function startscreen(){
     ss.append(start_button);
     ss.append(lb_button);
 }
+
+
+
 function show_leaderboard(){
     ss.empty();
     ss.append(start_button)
@@ -70,6 +82,9 @@ function show_leaderboard(){
             leaderboard.append('<tr class="table_lines"><td>'+rank+'.</td><td>'+scores[i].name+'</td><td>'+scores[i].score+'</td></tr>');
         }
     }
+    audio_start.currentTime=0;
+    audio_start.play();
+    audio_start.loop=true;
 
 }
 
@@ -88,12 +103,35 @@ function get_scores(){
 }
 
 function play(){
+    audio_start.pause();
+    audio_play.loop=true;
+    audio_play.play();
+    audio_play.volume=0.2
+    game_area.empty();
     ss.empty();
     ss.remove();
     game_area.append(head);
+    let curr_level=$('<h2 class="animation"></h2>');
+    curr_level.text("Level: "+level);
+    game_area.append(curr_level)
+    curr_level.fadeIn();
+    setTimeout(function (){
+        curr_level.remove();
+    },1000);
+    head.css({
+        height: 0
+    })
+    head.animate({
+        height: 50
+    })
     game_area.append(container)
-    score=0;
+    if(go===true) {
+        audio_play.currentTime=0;
+        score=0;
+        level=1;
+    }
     time_left=11-level;
+    brick_array=[];
     ga_width=parseInt(game_area.css('width'));
     ga_height=parseInt(game_area.css('height'));
     cont_height=parseInt(container.css('height'));
@@ -175,8 +213,7 @@ function play(){
 function plus_time_animation(){
     let plus_t_text=$('<h2 class="animation">+Plus time!</h2>');
     game_area.append(plus_t_text);
-    plus_t_text.slideUp(2000);
-
+    plus_t_text.slideUp(1500);
 }
 
 function check_if_scored(brick){
@@ -203,12 +240,22 @@ function check_if_scored(brick){
 }
 
 function destroy_column(dyn){
-    let col=brick_array.filter(o=>{
+    neighbours=brick_array.filter(o=>{
         return (o.x===dyn.x && o.cl!=='tile');
     });
-    score+=col.length*10;
-    col.cl="tile";
-    remove_bricks(col)
+    remove_bricks(neighbours);
+    neighbours=[];
+}
+
+function level_up(){
+    if(score>=100*level){
+        level++;
+        wall_pct-=0.1;
+        brick_array=[];
+        clearInterval(interval);
+        audio_levelup.play();
+        play();
+    }
 }
 
 function remove_bricks(array){
@@ -221,11 +268,13 @@ function remove_bricks(array){
     })
     score+=neighbours.length*10;
     let score_animation=$('<h2 class="animation"></h2>');
-    score_animation.text("+"+score+" pts!");
+    score_animation.text("+"+neighbours.length*10+" pts!");
     game_area.append(score_animation)
-    score_animation.slideUp(2000);
+    score_animation.slideUp(1500);
     $('#score').text("Score: "+score);
     draw_grid();
+    audio_remove_brick.play()
+    level_up();
 }
 
 function check_neigbours(array, current){
@@ -244,18 +293,21 @@ function check_neigbours(array, current){
             check_neigbours(array, e);
         }
     })
-    console.log(neighbours)
 }
 
 function game_over(){
     clearInterval(interval);
+    go=true;
     brick_array=[];
     game_area.empty();
     game_area.append(ss);
+    ss.append(go_text)
     ss.append(add_score_button);
     ss.append(name_input);
     ss.append(start_button);
-
+    audio_play.pause();
+    audio_go.currentTime=0;
+    audio_go.play();
 }
 
 function add_to_leaderboard(){
@@ -279,6 +331,7 @@ function place_brick(brick){
     brick_array[to_index].cl=brick_array[from_index].cl;
     brick_array[from_index].cl='tile';
     draw_grid();
+    audio_put_brick.play();
     holding=false;
     check_if_scored(to);
 }
@@ -378,13 +431,13 @@ function new_line(){
 }
 
 function change_color(){
-    if(Math.random()>0.97){
+    if(Math.random()>wall_pct){
         return "wall";
     }
-    if(Math.random()>0.97){
+    if(Math.random()>dyn_time_pct){
         return "dynamite";
     }
-    if(Math.random()>0.97){
+    if(Math.random()>dyn_time_pct){
         return "clock";
     }
     let color=Math.floor(Math.random()*5);
