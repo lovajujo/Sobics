@@ -42,12 +42,12 @@ let name_input=$('<input type="text" required maxlength="10" placeholder="type y
 let go=false;
 let wall_pct=0.99;
 let dyn_time_pct=0.96;
-let audio_go=new Audio("../res/audio/7sec.mp3");
-let audio_levelup=new Audio("../res/audio/bonus.mp3");
-let audio_put_brick=new Audio("../res/audio/put.mp3");
-let audio_remove_brick=new Audio("../res/audio/remove.mp3");
-let audio_play=new Audio("../res/audio/theme_long.mp3");
-let audio_start=new Audio("../res/audio/starts.mp3");
+let audio_go=new Audio("../VH57FE/audio/7sec.mp3");
+let audio_levelup=new Audio("../VH57FE/audio/bonus.mp3");
+let audio_put_brick=new Audio("../VH57FE/audio/put.mp3");
+let audio_remove_brick=new Audio("../VH57FE/audio/remove.mp3");
+let audio_play=new Audio("../VH57FE/audio/theme_long.mp3");
+let audio_start=new Audio("../VH57FE/audio/starts.mp3");
 
 $(document).ready(function () {
     game_area=$("#game_area");
@@ -62,8 +62,6 @@ function startscreen(){
     ss.append(start_button);
     ss.append(lb_button);
 }
-
-
 
 function show_leaderboard(){
     ss.empty();
@@ -103,6 +101,7 @@ function get_scores(){
 }
 
 function play(){
+    holding=false;
     audio_start.pause();
     audio_play.loop=true;
     audio_play.play();
@@ -137,7 +136,7 @@ function play(){
     cont_height=parseInt(container.css('height'));
     brick_width=ga_width/column_number;
     brick_height=cont_height/13;
-    grogu=$('<img src="/res/img/groguu.png" id="grogu">');
+    grogu=$('<img src="/VH57FE/img/groguu.png" id="grogu">');
     grogu.on('load', function(){
         init_grogu();
     });
@@ -208,115 +207,6 @@ function play(){
         }
     }, 1000);
 
-}
-
-function plus_time_animation(){
-    let plus_t_text=$('<h2 class="animation">+Plus time!</h2>');
-    game_area.append(plus_t_text);
-    plus_t_text.slideUp(1500);
-}
-
-function check_if_scored(brick){
-    if(brick.cl==='dynamite'){
-        destroy_column(brick);
-    }else if(brick.cl==='clock'){
-        time_left=11-level;
-        plus_time_animation()
-        brick.cl='tile';
-        draw_grid();
-
-    }else{
-        neighbours.push(brick);
-        let curr_color_bricks=brick_array.filter(o=>{
-            return o.cl===brick.cl;
-        });
-        check_neigbours(curr_color_bricks, brick);
-        if(neighbours.length>=4){
-            remove_bricks(neighbours);
-        }
-
-        neighbours=[];
-    }
-}
-
-function destroy_column(dyn){
-    neighbours=brick_array.filter(o=>{
-        return (o.x===dyn.x && o.cl!=='tile');
-    });
-    remove_bricks(neighbours);
-    neighbours=[];
-}
-
-function level_up(){
-    if(score>=100*level){
-        level++;
-        wall_pct-=0.1;
-        brick_array=[];
-        clearInterval(interval);
-        audio_levelup.play();
-        play();
-    }
-}
-
-function remove_bricks(array){
-    brick_array.forEach(function (original_b){
-        array.forEach(function (to_remove){
-            if(original_b.x===to_remove.x && original_b.y===to_remove.y){
-                original_b.cl='tile';
-            }
-        })
-    })
-    score+=neighbours.length*10;
-    let score_animation=$('<h2 class="animation"></h2>');
-    score_animation.text("+"+neighbours.length*10+" pts!");
-    game_area.append(score_animation)
-    score_animation.slideUp(1500);
-    $('#score').text("Score: "+score);
-    draw_grid();
-    audio_remove_brick.play()
-    level_up();
-}
-
-function check_neigbours(array, current){
-    array.forEach(function (e){
-        if(e.x-current.x===1 && e.y===current.y && !neighbours.includes(e)){
-            neighbours.push(e);
-            check_neigbours(array, e);
-        }else if(e.x-current.x===-1 && e.y===current.y && !neighbours.includes(e)){
-            neighbours.push(e);
-            check_neigbours(array, e);
-        }else if(e.y-current.y===1 && e.x===current.x &&!neighbours.includes(e)){
-            neighbours.push(e);
-            check_neigbours(array, e);
-        }else if(e.y-current.y===-1 && e.x===current.x && !neighbours.includes(e)){
-            neighbours.push(e);
-            check_neigbours(array, e);
-        }
-    })
-}
-
-function game_over(){
-    clearInterval(interval);
-    go=true;
-    brick_array=[];
-    game_area.empty();
-    game_area.append(ss);
-    ss.append(go_text)
-    ss.append(add_score_button);
-    ss.append(name_input);
-    ss.append(start_button);
-    audio_play.pause();
-    audio_go.currentTime=0;
-    audio_go.play();
-}
-
-function add_to_leaderboard(){
-    let name=$('#name_in').val();
-    let value=""+name+";"+score;
-    let key=Date.now().toString();
-    localStorage.setItem(key, value);
-    location.reload()
-    alert('Score added!')
 }
 
 function place_brick(brick){
@@ -456,7 +346,7 @@ function move_grogu(ev){
 
 function is_bottom_brick(brick){
     if(holding){
-            return false;
+        return false;
     }
     let obj=brick_array.find(o=>o.id===brick.attr('id'));
     picked_brick_index=brick_array.findIndex(o => {
@@ -484,4 +374,115 @@ function is_top_tile(tile){
 
 
 }
+
+function plus_time_animation(){
+    let plus_t_text=$('<h2 class="animation">+Plus time!</h2>');
+    game_area.append(plus_t_text);
+    plus_t_text.slideUp(1500);
+}
+
+function check_if_scored(brick){
+    if(brick.cl==='dynamite'){
+        destroy_column(brick);
+    }else if(brick.cl==='clock'){
+        time_left=11-level;
+        plus_time_animation()
+        brick.cl='tile';
+        draw_grid();
+
+    }else{
+        neighbours.push(brick);
+        let curr_color_bricks=brick_array.filter(o=>{
+            return o.cl===brick.cl;
+        });
+        check_neigbours(curr_color_bricks, brick);
+        if(neighbours.length>=4){
+            remove_bricks(neighbours);
+        }
+
+        neighbours=[];
+    }
+}
+
+function destroy_column(dyn){
+    neighbours=brick_array.filter(o=>{
+        return (o.x===dyn.x && o.cl!=='tile');
+    });
+    remove_bricks(neighbours);
+    neighbours=[];
+}
+
+function level_up(){
+    if(score>=100*level){
+        go=false;
+        level++;
+        wall_pct-=0.1;
+        brick_array=[];
+        clearInterval(interval);
+        audio_levelup.play();
+        play();
+    }
+}
+
+function remove_bricks(array){
+    brick_array.forEach(function (original_b){
+        array.forEach(function (to_remove){
+            if(original_b.x===to_remove.x && original_b.y===to_remove.y){
+                original_b.cl='tile';
+            }
+        })
+    })
+    score+=neighbours.length*10;
+    let score_animation=$('<h2 class="animation"></h2>');
+    score_animation.text("+"+neighbours.length*10+" pts!");
+    game_area.append(score_animation)
+    score_animation.slideUp(1500);
+    $('#score').text("Score: "+score);
+    draw_grid();
+    audio_remove_brick.play()
+    level_up();
+}
+
+function check_neigbours(array, current){
+    array.forEach(function (e){
+        if(e.x-current.x===1 && e.y===current.y && !neighbours.includes(e)){
+            neighbours.push(e);
+            check_neigbours(array, e);
+        }else if(e.x-current.x===-1 && e.y===current.y && !neighbours.includes(e)){
+            neighbours.push(e);
+            check_neigbours(array, e);
+        }else if(e.y-current.y===1 && e.x===current.x &&!neighbours.includes(e)){
+            neighbours.push(e);
+            check_neigbours(array, e);
+        }else if(e.y-current.y===-1 && e.x===current.x && !neighbours.includes(e)){
+            neighbours.push(e);
+            check_neigbours(array, e);
+        }
+    })
+}
+
+function game_over(){
+    clearInterval(interval);
+    go=true;
+    brick_array=[];
+    game_area.empty();
+    game_area.append(ss);
+    ss.append(go_text)
+    ss.append(add_score_button);
+    ss.append(name_input);
+    ss.append(start_button);
+    audio_play.pause();
+    audio_go.currentTime=0;
+    audio_go.play();
+}
+
+function add_to_leaderboard(){
+    let name=$('#name_in').val();
+    let value=""+name+";"+score;
+    let key=Date.now().toString();
+    localStorage.setItem(key, value);
+    location.reload()
+    alert('Score added!')
+}
+
 
